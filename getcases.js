@@ -1,26 +1,28 @@
 const express = require('express');
 const cors = require('cors');
-const { Client } = require('pg');
+const { Pool } = require('pg');
 
 const app = express();
 const PORT = 3001;
 
-// Подключение к базе данных
-const client = new Client({
+// Используем пул подключений для более эффективной работы
+const pool = new Pool({
   connectionString: 'postgresql://david:5o7AIPBP4WU2AfaRyAzqY1xTubmsjyR4@dpg-cvlnm6idbo4c7385v990-a.oregon-postgres.render.com/case_31na',
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
+  // Можно добавить дополнительные настройки пула, если необходимо
+  max: 20,  // Максимальное количество подключений в пуле
+  idleTimeoutMillis: 30000, // Время ожидания неактивных подключений
+  connectionTimeoutMillis: 5000 // Время ожидания подключения
 });
 
 // Разрешаем CORS (чтобы фронт мог делать запросы)
-app.use(cors({
-  origin: 'http://localhost:3000', // Замените на адрес вашего фронтенда
-  methods: ['GET', 'POST'],
-
-}));
+app.use(cors());
 
 app.get('/get', async (req, res) => {
+  const client = await pool.connect(); // Получаем подключение из пула
+
   try {
-    await client.connect();
+    console.log("Подключение установлено");
 
     const query = `
       SELECT 
@@ -56,25 +58,23 @@ app.get('/get', async (req, res) => {
 
       const caseItem = casesMap.get(row.id);
 
-      // Добавляем изображение, если оно не пустое
       if (row.image_url) {
         caseItem.images.push(row.image_url);
       }
 
-      // Добавляем информацию, если ее нет в списке
       if (row.info_title && !caseItem.info.some(info => info.title === row.info_title)) {
         caseItem.info.push({ title: row.info_title, description: row.info_description });
       }
     });
 
     const casesWithImages = Array.from(casesMap.values());
-
     res.json(casesWithImages);
   } catch (err) {
     console.error('Ошибка при получении данных:', err);
     res.status(500).json({ error: 'Ошибка сервера' });
   } finally {
-    await client.end();
+    client.release(); // Возвращаем соединение в пул
+    console.log("Подключение освобождено");
   }
 });
 
