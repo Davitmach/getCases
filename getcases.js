@@ -13,7 +13,7 @@ const client = new Client({
 
 // Разрешаем CORS (чтобы фронт мог делать запросы)
 app.use(cors({
-  origin: 'http://localhost:3001', // Замените на адрес вашего фронтенда
+  origin: 'http://localhost:3000', // Замените на адрес вашего фронтенда
   methods: ['GET', 'POST'],
 
 }));
