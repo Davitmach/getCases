@@ -3,7 +3,7 @@ const cors = require('cors');
 const { Client } = require('pg');
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 // Подключение к базе данных
 const client = new Client({
