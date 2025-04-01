@@ -30,6 +30,7 @@ app.get('/get', async (req, res) => {
         cases.date,
         cases.mainimg,
         cases.innerimg,
+        cases.case_type,
         cases.title AS case_title,
         info.title AS info_title,
         info.description AS info_description,
@@ -51,6 +52,7 @@ app.get('/get', async (req, res) => {
           mainimg: row.mainimg,
           innerimg: row.innerimg,
           title: row.case_title,
+type: row.case_type,
           info: [],
           images: []
         });
