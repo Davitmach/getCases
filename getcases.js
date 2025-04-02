@@ -9,13 +9,11 @@ const PORT = 3001;
 const pool = new Pool({
   connectionString: 'postgresql://david:5o7AIPBP4WU2AfaRyAzqY1xTubmsjyR4@dpg-cvlnm6idbo4c7385v990-a.oregon-postgres.render.com/case_31na',
   ssl: { rejectUnauthorized: false },
-  // Можно добавить дополнительные настройки пула, если необходимо
   max: 20,  // Максимальное количество подключений в пуле
   idleTimeoutMillis: 30000, // Время ожидания неактивных подключений
   connectionTimeoutMillis: 5000 // Время ожидания подключения
 });
 
-// Разрешаем CORS (чтобы фронт мог делать запросы)
 app.use(cors());
 
 app.get('/get', async (req, res) => {
@@ -52,7 +50,7 @@ app.get('/get', async (req, res) => {
           mainimg: row.mainimg,
           innerimg: row.innerimg,
           title: row.case_title,
-type: row.case_type,
+          type: row.case_type,
           info: [],
           images: []
         });
@@ -60,7 +58,7 @@ type: row.case_type,
 
       const caseItem = casesMap.get(row.id);
 
-      if (row.image_url) {
+      if (row.image_url && !caseItem.images.includes(row.image_url)) {
         caseItem.images.push(row.image_url);
       }
 
